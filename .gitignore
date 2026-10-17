@@ -1,0 +1,7 @@
+# The router's original firmware and device data: never public
+backup/
+# Downloads, shop photos, the label photo (it shows default passwords), saved web pages
+offline/
+# Klaude's local working notes (home details)
+CLAUDE.md
+__pycache__/
