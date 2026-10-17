@@ -289,9 +289,8 @@ claude.ai 1.2 s, Google 1.6 s, Baidu 0.14 s, China mirror download **112 MB/s** 
 - **Lesson from the first try:** a running Claude keeps the proxy setting it started with (`127.0.0.1:7897`, Verge's
   port). Quitting Verge before restarting Claude cut that session off. Always restart Claude right after
   `os-admin check`, and keep Verge open until then.
-- **Windows on this PC (DT-W-26)** uses the same network port, so it lost the exemption too. Its Verge runs in
-  system-proxy mode, which means Verge, then the router: two proxies in a row. Next time in Windows, switch Verge's
-  system proxy off there too (an os-admin item for DT-W-26).
+- **Windows on this PC (DT-W-26)** uses the same network port and MAC, so the exemption covers it too. Had DT-26
+  stayed on the router, Windows' Verge (system-proxy mode) would have needed switching off as well.
 - While Verge is quit, os-admin warns `CLASH nothing listening on 7897`. That's expected; at the next login Verge
   starts again, idle, with TUN off.
 
