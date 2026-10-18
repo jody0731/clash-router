@@ -13,6 +13,7 @@ written to be followed offline, because a mistake here can leave you without int
 |---|---|
 | `RUNBOOK.md` | Lifelines, phases 0–4 (prepare, flash, plain router, Clash, a PC onto the router), living with it, emergencies |
 | `push-union.py` | Renders a Clash profile template with its subscription links (never printed), checks it on the router with `mihomo -t`, installs it and restarts Nikki |
+| `router/stall-watcher.uc`, `deploy-watcher.sh` | A ucode service on the router that spots a node stalling after the first few KB (which mihomo's HEAD health checks miss), confirms it with one probe page and moves the fallback group to the next node in the same country; tested by 7 scenarios before every install |
 | `docs/img/` | Where the serial header is (J4) and how the board looks with the cover off |
 
 Not included, on purpose: the backup of the router's original firmware (it holds the device's own data), the

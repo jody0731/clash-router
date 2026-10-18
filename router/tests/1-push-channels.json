@@ -1,0 +1,213 @@
+{
+ "ticks": [
+  {
+   "t": 0,
+   "conns": [
+    {
+     "id": "c1",
+     "node": "N1",
+     "host": "x.com",
+     "start": -300,
+     "down": 16384,
+     "up": 300
+    },
+    {
+     "id": "c2",
+     "node": "N1",
+     "host": "tiktok.com",
+     "start": -300,
+     "down": 16000,
+     "up": 300
+    },
+    {
+     "id": "c3",
+     "node": "N1",
+     "host": "en.wikipedia.org",
+     "start": -300,
+     "down": 15000,
+     "up": 300
+    }
+   ]
+  },
+  {
+   "t": 15,
+   "conns": [
+    {
+     "id": "c1",
+     "node": "N1",
+     "host": "x.com",
+     "start": -300,
+     "down": 16384,
+     "up": 300
+    },
+    {
+     "id": "c2",
+     "node": "N1",
+     "host": "tiktok.com",
+     "start": -300,
+     "down": 16000,
+     "up": 300
+    },
+    {
+     "id": "c3",
+     "node": "N1",
+     "host": "en.wikipedia.org",
+     "start": -300,
+     "down": 15000,
+     "up": 300
+    }
+   ]
+  },
+  {
+   "t": 30,
+   "conns": [
+    {
+     "id": "c1",
+     "node": "N1",
+     "host": "x.com",
+     "start": -300,
+     "down": 16384,
+     "up": 300
+    },
+    {
+     "id": "c2",
+     "node": "N1",
+     "host": "tiktok.com",
+     "start": -300,
+     "down": 16000,
+     "up": 300
+    },
+    {
+     "id": "c3",
+     "node": "N1",
+     "host": "en.wikipedia.org",
+     "start": -300,
+     "down": 15000,
+     "up": 300
+    }
+   ]
+  },
+  {
+   "t": 45,
+   "conns": [
+    {
+     "id": "c1",
+     "node": "N1",
+     "host": "x.com",
+     "start": -300,
+     "down": 16384,
+     "up": 300
+    },
+    {
+     "id": "c2",
+     "node": "N1",
+     "host": "tiktok.com",
+     "start": -300,
+     "down": 16000,
+     "up": 300
+    },
+    {
+     "id": "c3",
+     "node": "N1",
+     "host": "en.wikipedia.org",
+     "start": -300,
+     "down": 15000,
+     "up": 300
+    }
+   ]
+  }
+ ],
+ "expect_not": [
+  "probe",
+  "stalls",
+  "stuck"
+ ],
+ "name": "1-push-channels",
+ "px": {
+  "🔰 Proxy": {
+   "type": "Selector",
+   "now": "🇺🇸 US",
+   "all": [
+    "🇺🇸 US",
+    "🤖 AI",
+    "DIRECT"
+   ]
+  },
+  "🇺🇸 US": {
+   "type": "Fallback",
+   "now": "N1",
+   "all": [
+    "N1",
+    "N2",
+    "N3",
+    "N4",
+    "N5",
+    "N6"
+   ]
+  },
+  "🤖 AI": {
+   "type": "Fallback",
+   "now": "A1",
+   "all": [
+    "A1",
+    "A2"
+   ]
+  },
+  "🔎 Google": {
+   "type": "Fallback",
+   "now": "H1",
+   "all": [
+    "H1",
+    "H2"
+   ]
+  },
+  "🐙 GitHub": {
+   "type": "Fallback",
+   "now": "J1",
+   "all": [
+    "J1",
+    "J2"
+   ]
+  }
+ },
+ "chains": {
+  "N1": [
+   "N1",
+   "🇺🇸 US",
+   "🔰 Proxy"
+  ],
+  "N2": [
+   "N2",
+   "🇺🇸 US",
+   "🔰 Proxy"
+  ],
+  "N3": [
+   "N3",
+   "🇺🇸 US",
+   "🔰 Proxy"
+  ],
+  "N4": [
+   "N4",
+   "🇺🇸 US",
+   "🔰 Proxy"
+  ],
+  "N5": [
+   "N5",
+   "🇺🇸 US",
+   "🔰 Proxy"
+  ],
+  "N6": [
+   "N6",
+   "🇺🇸 US",
+   "🔰 Proxy"
+  ],
+  "A1": [
+   "A1",
+   "🤖 AI"
+  ],
+  "H1": [
+   "H1",
+   "🔎 Google"
+  ]
+ }
+}

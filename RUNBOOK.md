@@ -259,7 +259,7 @@ To redo it from scratch (e.g. after a reset; Phase 2 done first), from DT-26:
    ```bash
    D=~/.local/share/io.github.clash-verge-rev.clash-verge-rev
    scp -O $D/Country.mmdb $D/geosite.dat root@192.168.3.1:/etc/nikki/run/
-   scp -O $D/providers/union-ikuuu.yaml $D/providers/union-yz.yaml root@192.168.3.1:/etc/nikki/run/providers/
+   scp -O $D/providers/union-*.yaml root@192.168.3.1:/etc/nikki/run/providers/
    ssh root@192.168.3.1 'chmod 600 /etc/nikki/run/providers/union-*.yaml'
    cd /tmp && curl -sLO https://github.com/Zephyruso/zashboard/releases/latest/download/dist-cdn-fonts.zip && unzip -q dist-cdn-fonts.zip && tar cf - -C dist . | ssh root@192.168.3.1 'mkdir -p /etc/nikki/run/ui && tar xf - -C /etc/nikki/run/ui'
    ```
@@ -333,6 +333,32 @@ everything. Then `os-admin check` (it puts Claude's proxy back), and Klaude puts
 - **Going back to H3C's firmware for good:** E5, from `backup/`. Check the backup is complete (Phase 1 step 7)
   before going on, since it's the only copy. The method comes from the developer who added this router to OpenWrt;
   we haven't tested it ourselves.
+
+## Stall watcher (2026-10-18)
+
+A small service on the router (`router/stall-watcher.uc`, ucode, run by procd as `stall-watcher`) that catches a
+node that **stalls**: it delivers the first ~16 KB of every response and then hangs, while mihomo's health checks (HEAD
+requests only) still call it alive. That happened to a provider's US nodes on 2026-10-18 (X, TikTok, Wikipedia never
+loaded). It's a port of os-admin's PC watcher (NODESTALL).
+
+- **How it decides:** every 15 s it reads Clash's live connections from the local controller (no test traffic). A
+  node is suspect when TCP connections to 3+ different sites have sat 20–120 s old under 20 KB, unchanged since the
+  last look, and none of its connections got past 20 KB in the last minute. Older idle connections are push
+  channels and don't count.
+- **What it does:** one probe page through the router's own port 7890 confirms it (Wikipedia for 🔰 Proxy,
+  anthropic.com for 🤖 AI, Google, GitHub; the whole page within 12 s). If the page comes through, the node is left
+  alone for 30 min. If not, the node's **fallback group** is fixed on its next member that delivers (same group, so
+  same country; at most 4 tried; never url-test). Every 30 min a fix is lifted, and stays lifted once the group's
+  own pick delivers again. A node picked by hand in a select group is only logged.
+- **Cost:** about 0.03 s of CPU per 90 s and 1 MB of RAM.
+- **See what it did:** `ssh root@192.168.3.1 'logread -e stall-watcher'`. Its current fixes are in
+  `/etc/nikki/stall-watcher.json`.
+- **Install or update:** `./deploy-watcher.sh` runs the 7 test scenarios on the router (push channels, only two
+  stuck sites, a false alarm, a node still downloading, a real stall then lift, a whole country stalling, the own
+  pick still stalling) and installs only when all pass. One look with the real controller and a probe per group:
+  `ssh root@192.168.3.1 'ucode /usr/share/stall-watcher/stall-watcher.uc check'`.
+- **Stop it:** `ssh root@192.168.3.1 '/etc/init.d/stall-watcher stop; /etc/init.d/stall-watcher disable'`. Nikki is
+  unaffected.
 
 ## Emergencies: what to do when it breaks
 
