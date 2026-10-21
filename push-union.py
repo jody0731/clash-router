@@ -11,6 +11,7 @@ Usage: ./push-union.py               render, check, install, restart Nikki
 """
 import os
 import re
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -21,6 +22,7 @@ import yaml
 OS_ADMIN = Path.home() / 'Projects/BrainStorm/OS-Admin/clash'
 TEMPLATE = Path(os.environ.get('UNION_TEMPLATE', OS_ADMIN / 'Union.template.yaml'))
 SUBS = Path(os.environ.get('UNION_SUBS', OS_ADMIN / 'subscriptions.yaml'))
+NODES = Path(os.environ.get('UNION_NODES', OS_ADMIN / 'nodes.yaml'))
 SSH = ['ssh', '-o', 'UserKnownHostsFile=/dev/null', '-o', 'StrictHostKeyChecking=no', '-o', 'LogLevel=ERROR',
        '-o', 'ConnectTimeout=5', os.environ.get('ROUTER', 'root@192.168.3.1')]
 NEW, DEST = '/etc/nikki/profiles/union.yaml.new', '/etc/nikki/profiles/union.yaml'
@@ -40,6 +42,12 @@ for name in used:
     if not subs.get(name):
         sys.exit(f'No link for {name} in {SUBS}')
     text = text.replace(f'@SUB:{name}@', subs[name])
+# Nodes carried inline for an airport whose link only opens briefly (E-IX, OS-Admin's clash/nodes.yaml, 2026-10-21).
+nodes = yaml.safe_load(NODES.read_text()) if NODES.is_file() else {}
+for name in sorted(set(re.findall(r'@NODES:([^@]+)@', text))):
+    if not (nodes.get(name) or {}).get('proxies'):
+        sys.exit(f'No nodes for {name} in {NODES}')
+    text = text.replace(f'@NODES:{name}@', json.dumps(nodes[name]['proxies'], ensure_ascii=False, separators=(',', ':')))
 
 rc, out = router(f'umask 077 && cat > {NEW} && mihomo -t -d /etc/nikki/run -f {NEW} 2>&1 | tail -3', text)
 if rc or 'successful' not in out:
