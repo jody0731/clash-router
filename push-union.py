@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Copy Union to the router's Nikki (Klaude, 2026-10-18).
+"""Copy the router's Clash profile to its Nikki (Klaude, 2026-10-18; OS-Admin's Union until 2026-10-21, since then
+its own small one, clash/Router.template.yaml: one sticky US group for the phones).
 
 Renders OS-Admin's Union template with the subscription links (never printed), checks it on the router with
 `mihomo -t`, installs it as /etc/nikki/profiles/union.yaml and restarts Nikki. The template stays the one source:
@@ -20,7 +21,7 @@ import yaml
 
 # Where the template and the links live; override with UNION_TEMPLATE / UNION_SUBS, the router with ROUTER.
 OS_ADMIN = Path.home() / 'Projects/BrainStorm/OS-Admin/clash'
-TEMPLATE = Path(os.environ.get('UNION_TEMPLATE', OS_ADMIN / 'Union.template.yaml'))
+TEMPLATE = Path(os.environ.get('UNION_TEMPLATE', OS_ADMIN / 'Router.template.yaml'))   # the router's own (2026-10-21)
 SUBS = Path(os.environ.get('UNION_SUBS', OS_ADMIN / 'subscriptions.yaml'))
 NODES = Path(os.environ.get('UNION_NODES', OS_ADMIN / 'nodes.yaml'))
 SSH = ['ssh', '-o', 'UserKnownHostsFile=/dev/null', '-o', 'StrictHostKeyChecking=no', '-o', 'LogLevel=ERROR',
@@ -54,7 +55,7 @@ if rc or 'successful' not in out:
     router(f'rm -f {NEW}')
     sys.exit(f'Union failed the check on the router, nothing changed:\n{out}')
 router(f'mv {NEW} {DEST}')
-print(f'Union installed on the router ({len(text.splitlines())} lines, {len(used)} links filled in), check passed.')
+print(f'{TEMPLATE.stem.split(".")[0]} installed on the router ({len(text.splitlines())} lines, {len(used)} links filled in), check passed.')
 
 if '--no-restart' not in sys.argv:
     rc, out = router('service nikki restart 2>&1; sleep 5; pidof mihomo >/dev/null && echo running || echo NOT running')
