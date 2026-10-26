@@ -45,10 +45,21 @@ for name in used:
     text = text.replace(f'@SUB:{name}@', subs[name])
 # Nodes carried inline for an airport whose link only opens briefly (E-IX, OS-Admin's clash/nodes.yaml, 2026-10-21).
 nodes = yaml.safe_load(NODES.read_text()) if NODES.is_file() else {}
-for name in sorted(set(re.findall(r'@NODES:([^@]+)@', text))):
+# `@NODES:<name>|key=value,...@` also sets those options on the set's AnyTLS nodes (the
+# router's warm session pool, 2026-10-26); OS-Admin's ROUTERUNION renders it the same way.
+for mark in sorted(set(re.findall(r'@NODES:([^@]+)@', text))):
+    name, _, opts = mark.partition('|')
+    extra = {}
+    for kv in filter(None, opts.split(',')):
+        k, _, v = kv.partition('=')
+        extra[k.strip()] = int(v) if v.strip().isdigit() else v.strip()
     if not (nodes.get(name) or {}).get('proxies'):
         sys.exit(f'No nodes for {name} in {NODES}')
-    text = text.replace(f'@NODES:{name}@', json.dumps(nodes[name]['proxies'], ensure_ascii=False, separators=(',', ':')))
+    px = [dict(p, **extra) if p.get('type') == 'anytls' else p
+          for p in nodes[name]['proxies']]
+    text = text.replace(
+        f'@NODES:{mark}@',
+        json.dumps(px, ensure_ascii=False, separators=(',', ':')))
 
 rc, out = router(f'umask 077 && cat > {NEW} && mihomo -t -d /etc/nikki/run -f {NEW} 2>&1 | tail -3', text)
 if rc or 'successful' not in out:
