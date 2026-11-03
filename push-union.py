@@ -10,6 +10,7 @@ in Nikki's own settings (/etc/config/nikki), see RUNBOOK.md Phase 3.
 Usage: ./push-union.py               render, check, install, restart Nikki
        ./push-union.py --no-restart  render, check, install only
 """
+import ipaddress
 import os
 import re
 import json
@@ -60,6 +61,25 @@ for mark in sorted(set(re.findall(r'@NODES:([^@]+)@', text))):
     text = text.replace(
         f'@NODES:{mark}@',
         json.dumps(px, ensure_ascii=False, separators=(',', ':')))
+# `@RESOLVERS:<name>@`: one DNS-policy line, that set's server names resolved by the DNS
+# servers its own profile sets (E-IX gives its domestic relays only to its own resolver,
+# 2026-11-03). OS-Admin's resolver_entry() renders the same line, byte for byte.
+for name in sorted(set(re.findall(r'@RESOLVERS:([^@]+)@', text))):
+    sub = nodes.get(name) or {}
+    hosts = set()
+    for p in sub.get('proxies') or []:
+        try:
+            ipaddress.ip_address(str(p.get('server')))
+        except ValueError:
+            if p.get('server'):
+                hosts.add(str(p['server']))
+    rs = sub.get('resolvers') or []
+    if hosts and rs:
+        line = json.dumps({','.join(sorted(hosts)): rs}, ensure_ascii=False)[1:-1]
+    else:
+        line = f'# @RESOLVERS:{name}@: its profile sets no DNS servers'
+    mark = rf'^([ \t]*)@RESOLVERS:{re.escape(name)}@[ \t]*$'
+    text = re.sub(mark, lambda m: m.group(1) + line, text, flags=re.M)
 
 rc, out = router(f'umask 077 && cat > {NEW} && mihomo -t -d /etc/nikki/run -f {NEW} 2>&1 | tail -3', text)
 if rc or 'successful' not in out:
