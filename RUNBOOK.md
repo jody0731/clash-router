@@ -360,6 +360,16 @@ loaded). It's a port of os-admin's PC watcher (NODESTALL).
 - **Stop it:** `ssh root@192.168.3.1 '/etc/init.d/stall-watcher stop; /etc/init.d/stall-watcher disable'`. Nikki is
   unaffected.
 
+## Wake-on-LAN for the laptop (2026-11-06)
+
+The router's `wan` (`192.168.1.21`) sits on the modem's network, where the laptop is wired, so the router sends its
+magic packet when DT-26 has no `192.168.1.x` address of its own.
+
+- **Installed:** `etherwake` 1.09 (`apk add etherwake`, `/usr/bin/etherwake`). A sysupgrade drops it: reinstall the
+  same way.
+- **Wake the laptop:** `ssh root@192.168.3.1 etherwake -i wan <LAPTOP-MAC>`. It exits silently; harmless while the
+  laptop is on. The laptop's own NIC must be armed for Wake-on-LAN (the laptop's side, not this project's).
+
 ## Emergencies: what to do when it breaks
 
 **First, always: get online through a lifeline** (L1 router B's Wi-Fi, L2 phone hotspot, L3 modem port), with
